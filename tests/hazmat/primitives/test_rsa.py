@@ -252,7 +252,10 @@ class TestRSA:
         assert public_num.e == public_num2.e
 
     @pytest.mark.supported(
-        only_if=lambda backend: not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL,
+        only_if=lambda backend: not (
+            rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            or rust_openssl.CRYPTOGRAPHY_IS_AWSLC
+        ),
         skip_message="Does not support RSA PSS loading",
     )
     @pytest.mark.parametrize(

@@ -136,20 +136,20 @@ fn get_cipher_registry(
         #[cfg(not(CRYPTOGRAPHY_OSSLCONF = "OPENSSL_NO_SEED"))]
         let seed = types::SEED.get(py)?;
         let arc4 = types::ARC4.get(py)?;
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         let chacha20 = types::CHACHA20.get(py)?;
         let rc2 = types::RC2.get(py)?;
 
         let cbc = types::CBC.get(py)?;
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         let cfb = types::CFB.get(py)?;
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         let cfb8 = types::CFB8.get(py)?;
         let ofb = types::OFB.get(py)?;
         let ecb = types::ECB.get(py)?;
         let ctr = types::CTR.get(py)?;
         let gcm = types::GCM.get(py)?;
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         let xts = types::XTS.get(py)?;
 
         let none = py.None();
@@ -171,7 +171,7 @@ fn get_cipher_registry(
         m.add(&aes, &ctr, Some(192), Cipher::aes_192_ctr())?;
         m.add(&aes, &ctr, Some(256), Cipher::aes_256_ctr())?;
 
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         {
             m.add(&aes, &cfb8, Some(128), Cipher::aes_128_cfb8())?;
             m.add(&aes, &cfb8, Some(192), Cipher::aes_192_cfb8())?;
@@ -186,7 +186,7 @@ fn get_cipher_registry(
         m.add(&aes, &ecb, Some(192), Cipher::aes_192_ecb())?;
         m.add(&aes, &ecb, Some(256), Cipher::aes_256_ecb())?;
 
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         {
             m.add(&aes, &xts, Some(256), Cipher::aes_128_xts())?;
             m.add(&aes, &xts, Some(512), Cipher::aes_256_xts())?;
@@ -204,7 +204,7 @@ fn get_cipher_registry(
         m.add(&aes128, &ctr, Some(128), Cipher::aes_128_ctr())?;
         m.add(&aes256, &ctr, Some(256), Cipher::aes_256_ctr())?;
 
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         {
             m.add(&aes128, &cfb8, Some(128), Cipher::aes_128_cfb8())?;
             m.add(&aes256, &cfb8, Some(256), Cipher::aes_256_cfb8())?;
@@ -218,7 +218,7 @@ fn get_cipher_registry(
 
         m.add(&triple_des, &cbc, Some(192), Cipher::des_ede3_cbc())?;
         m.add(&triple_des, &ecb, Some(192), Cipher::des_ede3_ecb())?;
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         {
             m.add(&triple_des, &cfb8, Some(192), Cipher::des_ede3_cfb8())?;
             m.add(&triple_des, &cfb, Some(192), Cipher::des_ede3_cfb64())?;
@@ -258,7 +258,7 @@ fn get_cipher_registry(
             }
         }
 
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         m.add(&chacha20, none_type.as_any(), None, Cipher::chacha20())?;
 
         // Don't register legacy ciphers if they're unavailable. In theory

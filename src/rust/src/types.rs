@@ -550,10 +550,10 @@ pub static MODE_WITH_AUTHENTICATION_TAG: LazyPyImport = LazyPyImport::new(
 );
 pub static CBC: LazyPyImport =
     LazyPyImport::new("cryptography.hazmat.primitives.ciphers.modes", &["CBC"]);
-#[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+#[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
 pub static CFB: LazyPyImport =
     LazyPyImport::new("cryptography.hazmat.primitives.ciphers.modes", &["CFB"]);
-#[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+#[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
 pub static CFB8: LazyPyImport =
     LazyPyImport::new("cryptography.hazmat.primitives.ciphers.modes", &["CFB8"]);
 pub static OFB: LazyPyImport =

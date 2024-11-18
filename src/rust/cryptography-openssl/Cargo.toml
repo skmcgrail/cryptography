@@ -6,12 +6,15 @@ edition.workspace = true
 publish.workspace = true
 rust-version.workspace = true
 
+[features]
+aws-lc = ["openssl/aws-lc", "ffi/aws-lc"]
+
 [dependencies]
 cfg-if = "1"
-openssl = "0.10.68"
-ffi = { package = "openssl-sys", version = "0.9.101" }
+openssl = { version = "0.10.68", features = ["aws-lc"] }
+ffi = { package = "openssl-sys", version = "0.9.101", features = ["aws-lc"] }
 foreign-types = "0.3"
 foreign-types-shared = "0.1"
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(CRYPTOGRAPHY_OPENSSL_300_OR_GREATER)', 'cfg(CRYPTOGRAPHY_OPENSSL_320_OR_GREATER)', 'cfg(CRYPTOGRAPHY_IS_LIBRESSL)', 'cfg(CRYPTOGRAPHY_IS_BORINGSSL)'] }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(CRYPTOGRAPHY_OPENSSL_300_OR_GREATER)', 'cfg(CRYPTOGRAPHY_OPENSSL_320_OR_GREATER)', 'cfg(CRYPTOGRAPHY_IS_LIBRESSL)', 'cfg(CRYPTOGRAPHY_IS_BORINGSSL)', 'cfg(CRYPTOGRAPHY_IS_AWSLC)'] }

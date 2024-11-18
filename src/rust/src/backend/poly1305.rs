@@ -7,12 +7,20 @@ use crate::error::{CryptographyError, CryptographyResult};
 use crate::exceptions;
 use pyo3::types::PyBytesMethods;
 
-#[cfg(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_LIBRESSL))]
+#[cfg(any(
+    CRYPTOGRAPHY_IS_BORINGSSL,
+    CRYPTOGRAPHY_IS_LIBRESSL,
+    CRYPTOGRAPHY_IS_AWSLC
+))]
 struct Poly1305Boring {
     context: cryptography_openssl::poly1305::Poly1305State,
 }
 
-#[cfg(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_LIBRESSL))]
+#[cfg(any(
+    CRYPTOGRAPHY_IS_BORINGSSL,
+    CRYPTOGRAPHY_IS_LIBRESSL,
+    CRYPTOGRAPHY_IS_AWSLC
+))]
 impl Poly1305Boring {
     fn new(key: CffiBuf<'_>) -> CryptographyResult<Poly1305Boring> {
         if key.as_bytes().len() != 32 {
@@ -40,12 +48,20 @@ impl Poly1305Boring {
     }
 }
 
-#[cfg(not(any(CRYPTOGRAPHY_IS_LIBRESSL, CRYPTOGRAPHY_IS_BORINGSSL)))]
+#[cfg(not(any(
+    CRYPTOGRAPHY_IS_LIBRESSL,
+    CRYPTOGRAPHY_IS_BORINGSSL,
+    CRYPTOGRAPHY_IS_AWSLC
+)))]
 struct Poly1305Open {
     signer: openssl::sign::Signer<'static>,
 }
 
-#[cfg(not(any(CRYPTOGRAPHY_IS_LIBRESSL, CRYPTOGRAPHY_IS_BORINGSSL)))]
+#[cfg(not(any(
+    CRYPTOGRAPHY_IS_LIBRESSL,
+    CRYPTOGRAPHY_IS_BORINGSSL,
+    CRYPTOGRAPHY_IS_AWSLC
+)))]
 impl Poly1305Open {
     fn new(key: CffiBuf<'_>) -> CryptographyResult<Poly1305Open> {
         if cryptography_openssl::fips::is_enabled() {
@@ -89,9 +105,17 @@ impl Poly1305Open {
 
 #[pyo3::pyclass(module = "cryptography.hazmat.bindings._rust.openssl.poly1305")]
 struct Poly1305 {
-    #[cfg(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_LIBRESSL))]
+    #[cfg(any(
+        CRYPTOGRAPHY_IS_BORINGSSL,
+        CRYPTOGRAPHY_IS_LIBRESSL,
+        CRYPTOGRAPHY_IS_AWSLC
+    ))]
     inner: Option<Poly1305Boring>,
-    #[cfg(not(any(CRYPTOGRAPHY_IS_LIBRESSL, CRYPTOGRAPHY_IS_BORINGSSL)))]
+    #[cfg(not(any(
+        CRYPTOGRAPHY_IS_LIBRESSL,
+        CRYPTOGRAPHY_IS_BORINGSSL,
+        CRYPTOGRAPHY_IS_AWSLC
+    )))]
     inner: Option<Poly1305Open>,
 }
 
@@ -99,11 +123,19 @@ struct Poly1305 {
 impl Poly1305 {
     #[new]
     fn new(key: CffiBuf<'_>) -> CryptographyResult<Poly1305> {
-        #[cfg(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_LIBRESSL))]
+        #[cfg(any(
+            CRYPTOGRAPHY_IS_BORINGSSL,
+            CRYPTOGRAPHY_IS_LIBRESSL,
+            CRYPTOGRAPHY_IS_AWSLC
+        ))]
         return Ok(Poly1305 {
             inner: Some(Poly1305Boring::new(key)?),
         });
-        #[cfg(not(any(CRYPTOGRAPHY_IS_LIBRESSL, CRYPTOGRAPHY_IS_BORINGSSL)))]
+        #[cfg(not(any(
+            CRYPTOGRAPHY_IS_LIBRESSL,
+            CRYPTOGRAPHY_IS_BORINGSSL,
+            CRYPTOGRAPHY_IS_AWSLC
+        )))]
         return Ok(Poly1305 {
             inner: Some(Poly1305Open::new(key)?),
         });

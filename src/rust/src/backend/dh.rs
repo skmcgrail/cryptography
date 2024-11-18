@@ -192,7 +192,7 @@ impl DHPrivateKey {
         })
     }
 
-    #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+    #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
     fn public_key(&self) -> CryptographyResult<DHPublicKey> {
         let orig_dh = self.pkey.dh().unwrap();
         let dh = clone_dh(&orig_dh)?;
@@ -302,7 +302,7 @@ impl DHPublicKey {
 
 #[pyo3::pymethods]
 impl DHParameters {
-    #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+    #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
     fn generate_private_key(&self) -> CryptographyResult<DHPrivateKey> {
         let dh = clone_dh(&self.dh)?.generate_key()?;
         Ok(DHPrivateKey {
@@ -396,7 +396,7 @@ impl DHPrivateNumbers {
         DHPrivateNumbers { x, public_numbers }
     }
 
-    #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+    #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
     #[pyo3(signature = (backend=None))]
     fn private_key(
         &self,
@@ -449,7 +449,7 @@ impl DHPublicNumbers {
         }
     }
 
-    #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+    #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
     #[pyo3(signature = (backend=None))]
     fn public_key(
         &self,

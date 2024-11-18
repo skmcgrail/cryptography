@@ -187,6 +187,7 @@ class Backend:
     def dsa_supported(self) -> bool:
         return (
             not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            and not rust_openssl.CRYPTOGRAPHY_IS_AWSLC
             and not self._fips_enabled
         )
 
@@ -230,7 +231,10 @@ class Backend:
         )
 
     def dh_supported(self) -> bool:
-        return not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+        return (
+            not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            and not rust_openssl.CRYPTOGRAPHY_IS_AWSLC
+        )
 
     def dh_x942_serialization_supported(self) -> bool:
         return self._lib.Cryptography_HAS_EVP_PKEY_DHX == 1
@@ -246,6 +250,7 @@ class Backend:
         return (
             not rust_openssl.CRYPTOGRAPHY_IS_LIBRESSL
             and not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            and not rust_openssl.CRYPTOGRAPHY_IS_AWSLC
         )
 
     def ed25519_supported(self) -> bool:
@@ -259,6 +264,7 @@ class Backend:
         return (
             not rust_openssl.CRYPTOGRAPHY_IS_LIBRESSL
             and not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            and not rust_openssl.CRYPTOGRAPHY_IS_AWSLC
         )
 
     def ecdsa_deterministic_supported(self) -> bool:
@@ -273,7 +279,10 @@ class Backend:
         return True
 
     def pkcs7_supported(self) -> bool:
-        return not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+        return (
+            not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            and not rust_openssl.CRYPTOGRAPHY_IS_AWSLC
+        )
 
 
 backend = Backend()

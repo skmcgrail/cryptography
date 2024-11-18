@@ -138,7 +138,12 @@ def test_derive_point_at_infinity(backend):
     # BoringSSL rejects infinity points before it ever gets to us, so it
     # uses a more generic error message.
     match = (
-        "infinity" if not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL else "Invalid"
+        "infinity"
+        if not (
+            rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            or rust_openssl.CRYPTOGRAPHY_IS_AWSLC
+        )
+        else "Invalid"
     )
     with pytest.raises(ValueError, match=match):
         ec.derive_private_key(q, ec.SECP256R1())
@@ -428,7 +433,10 @@ class TestECDSAVectors:
         # uses a more generic error message.
         match = (
             r"infinity|invalid form"
-            if not rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            if not (
+                rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+                or rust_openssl.CRYPTOGRAPHY_IS_AWSLC
+            )
             else None
         )
         with pytest.raises(ValueError, match=match):

@@ -36,15 +36,15 @@ pub fn parse_public_key(
                     cryptography_x509::oid::EC_SECT409K1 => openssl::nid::Nid::SECT409K1,
                     cryptography_x509::oid::EC_SECT571K1 => openssl::nid::Nid::SECT571K1,
 
-                    #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+                    #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
                     cryptography_x509::oid::EC_BRAINPOOLP256R1 => {
                         openssl::nid::Nid::BRAINPOOL_P256R1
                     }
-                    #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+                    #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
                     cryptography_x509::oid::EC_BRAINPOOLP384R1 => {
                         openssl::nid::Nid::BRAINPOOL_P384R1
                     }
-                    #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+                    #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
                     cryptography_x509::oid::EC_BRAINPOOLP512R1 => {
                         openssl::nid::Nid::BRAINPOOL_P512R1
                     }
@@ -72,7 +72,11 @@ pub fn parse_public_key(
             k.subject_public_key.as_bytes(),
             openssl::pkey::Id::ED25519,
         )?),
-        #[cfg(all(not(CRYPTOGRAPHY_IS_LIBRESSL), not(CRYPTOGRAPHY_IS_BORINGSSL)))]
+        #[cfg(not(any(
+            CRYPTOGRAPHY_IS_LIBRESSL,
+            CRYPTOGRAPHY_IS_BORINGSSL,
+            CRYPTOGRAPHY_IS_AWSLC
+        )))]
         AlgorithmParameters::Ed448 => Ok(openssl::pkey::PKey::public_key_from_raw_bytes(
             k.subject_public_key.as_bytes(),
             openssl::pkey::Id::ED448,
@@ -81,7 +85,11 @@ pub fn parse_public_key(
             k.subject_public_key.as_bytes(),
             openssl::pkey::Id::X25519,
         )?),
-        #[cfg(all(not(CRYPTOGRAPHY_IS_LIBRESSL), not(CRYPTOGRAPHY_IS_BORINGSSL)))]
+        #[cfg(not(any(
+            CRYPTOGRAPHY_IS_LIBRESSL,
+            CRYPTOGRAPHY_IS_BORINGSSL,
+            CRYPTOGRAPHY_IS_AWSLC
+        )))]
         AlgorithmParameters::X448 => Ok(openssl::pkey::PKey::public_key_from_raw_bytes(
             k.subject_public_key.as_bytes(),
             openssl::pkey::Id::X448,
@@ -102,7 +110,7 @@ pub fn parse_public_key(
             let dsa = openssl::dsa::Dsa::from_public_components(p, q, g, pub_key)?;
             Ok(openssl::pkey::PKey::from_dsa(dsa)?)
         }
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         AlgorithmParameters::Dh(dh_params) => {
             let p = openssl::bn::BigNum::from_slice(dh_params.p.as_bytes())?;
             let q = openssl::bn::BigNum::from_slice(dh_params.q.as_bytes())?;
@@ -116,7 +124,7 @@ pub fn parse_public_key(
 
             Ok(openssl::pkey::PKey::from_dh(dh)?)
         }
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         AlgorithmParameters::DhKeyAgreement(dh_params) => {
             let p = openssl::bn::BigNum::from_slice(dh_params.p.as_bytes())?;
             let g = openssl::bn::BigNum::from_slice(dh_params.g.as_bytes())?;
