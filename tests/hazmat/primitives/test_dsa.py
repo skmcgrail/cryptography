@@ -565,21 +565,18 @@ class TestDSASignature:
         only_if=lambda _: (
             rust_openssl.CRYPTOGRAPHY_IS_LIBRESSL
             or rust_openssl.CRYPTOGRAPHY_IS_BORINGSSL
+            or rust_openssl.CRYPTOGRAPHY_IS_AWSLC
             or rust_openssl.CRYPTOGRAPHY_OPENSSL_309_OR_GREATER
         ),
-        skip_message="Requires OpenSSL 3.0.9+, LibreSSL, or BoringSSL",
+        skip_message="Requires OpenSSL 3.0.9+, LibreSSL, BoringSSL, or AWS-LC",
     )
     def test_nilpotent(self):
-        try:
-            key = load_vectors_from_file(
-                os.path.join("asymmetric", "DSA", "custom", "nilpotent.pem"),
-                lambda pemfile: serialization.load_pem_private_key(
-                    pemfile.read().encode(), password=None
-                ),
-            )
-        except ValueError:
-            # LibreSSL simply rejects this key on load.
-            return
+        key = load_vectors_from_file(
+            os.path.join("asymmetric", "DSA", "custom", "nilpotent.pem"),
+            lambda pemfile: serialization.load_pem_private_key(
+                pemfile.read().encode(), password=None
+            ),
+        )
         assert isinstance(key, dsa.DSAPrivateKey)
 
         with pytest.raises(ValueError):

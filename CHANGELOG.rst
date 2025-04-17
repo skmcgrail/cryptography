@@ -19,11 +19,22 @@ Changelog
   provided (previously no exception was raised), and raises a ``TypeError`` if
   the key is encrypted but no password is provided (previously a ``ValueError``
   was raised).
+* We significantly refactored how private key loading (
+  :func:`~cryptography.hazmat.primitives.serialization.load_pem_private_key`
+  and
+  :func:`~cryptography.hazmat.primitives.serialization.load_der_private_key`)
+  works. This is intended to be backwards compatible for all well-formed keys,
+  therefore if you discover a key that now raises an exception, please file a
+  bug with instructions for reproducing.
 * Added ``unsafe_skip_rsa_key_validation`` keyword-argument to
   :func:`~cryptography.hazmat.primitives.serialization.load_ssh_private_key`.
 * Added :class:`~cryptography.hazmat.primitives.hashes.XOFHash` to support
   repeated :meth:`~cryptography.hazmat.primitives.hashes.XOFHash.squeeze`
   operations on extendable output functions.
+* Added
+  :meth:`~cryptography.x509.ocsp.OCSPResponseBuilder.add_response_by_hash`
+  method to allow creating OCSP responses using certificate hash values rather
+  than full certificates.
 * Extended the :mod:`X.509 path validation <cryptography.x509.verification>` API to
   support user-configured extension policies via the
   :meth:`PolicyBuilder.extension_policies <cryptography.x509.verification.PolicyBuilder.extension_policies>` method.
@@ -42,6 +53,9 @@ Changelog
 * Added support for the ``CRYPTOGRAPHY_BUILD_OPENSSL_NO_LEGACY`` environment
   variable during build time, which prevents the library from ever attempting
   to load the legacy provider.
+* Added support for the :class:`~cryptography.x509.PrivateKeyUsagePeriod` X.509 extension.
+  This extension defines the period during which the private key corresponding
+  to the certificate's public key may be used.
 
 .. _v44-0-2:
 

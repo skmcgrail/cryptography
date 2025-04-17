@@ -5,7 +5,7 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use pyo3::types::{PyAnyMethods, PyDictMethods};
+use pyo3::types::PyAnyMethods;
 
 use crate::backend::utils;
 use crate::buf::CffiBuf;
@@ -68,11 +68,11 @@ fn curve_from_py_curve(
         "sect409k1" => openssl::nid::Nid::SECT409K1,
         "sect571k1" => openssl::nid::Nid::SECT571K1,
 
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         "brainpoolP256r1" => openssl::nid::Nid::BRAINPOOL_P256R1,
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         "brainpoolP384r1" => openssl::nid::Nid::BRAINPOOL_P384R1,
-        #[cfg(not(CRYPTOGRAPHY_IS_BORINGSSL))]
+        #[cfg(not(any(CRYPTOGRAPHY_IS_BORINGSSL, CRYPTOGRAPHY_IS_AWSLC)))]
         "brainpoolP512r1" => openssl::nid::Nid::BRAINPOOL_P512R1,
 
         curve_name => {
@@ -97,26 +97,11 @@ fn py_curve_from_curve<'p>(
     py: pyo3::Python<'p>,
     curve: &openssl::ec::EcGroupRef,
 ) -> CryptographyResult<pyo3::Bound<'p, pyo3::PyAny>> {
-    if curve.asn1_flag() == openssl::ec::Asn1Flag::EXPLICIT_CURVE {
-        return Err(CryptographyError::from(
-            pyo3::exceptions::PyValueError::new_err(
-                "ECDSA keys with explicit parameters are unsupported at this time",
-            ),
-        ));
-    }
+    assert!(curve.asn1_flag() != openssl::ec::Asn1Flag::EXPLICIT_CURVE);
 
     let name = curve.curve_name().unwrap().short_name()?;
 
-    types::CURVE_TYPES
-        .get(py)?
-        .extract::<pyo3::Bound<'_, pyo3::types::PyDict>>()?
-        .get_item(name)?
-        .ok_or_else(|| {
-            CryptographyError::from(exceptions::UnsupportedAlgorithm::new_err((
-                format!("{name} is not a supported elliptic curve"),
-                exceptions::Reasons::UNSUPPORTED_ELLIPTIC_CURVE,
-            )))
-        })
+    Ok(types::CURVE_TYPES.get(py)?.get_item(name)?)
 }
 
 fn check_key_infinity(
